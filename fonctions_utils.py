@@ -1,6 +1,24 @@
+from Light import Light
 from Sphere import Sphere
-from vec3 import soustraction_vecteurs, produit_scalaire
+from vec3 import addition_vecteurs, multiplication_scalaire, soustraction_vecteurs, produit_scalaire, taille_vecteur
 import math
+
+
+def ComputeLighting(P, N, scene):
+    intensity = 0.0
+    for light in scene.lights:
+        if light.type == 'ambient':
+            intensity += light.intensity
+        else:
+            if light.type == 'point':
+                L = soustraction_vecteurs(light.position, P)
+            else:
+                L = light.direction
+            n_dot_l = produit_scalaire(N, L)
+            if n_dot_l > 0:
+                intensity += light.intensity * n_dot_l / (taille_vecteur(N) * taille_vecteur(L))
+    return intensity
+
 
 def TraceRay(O, D, t_min, t_max, scene):
     closest_t = float('inf')
@@ -19,8 +37,11 @@ def TraceRay(O, D, t_min, t_max, scene):
 
     if closest_sphere == None:
         return (255, 255, 255)
-    
-    return closest_sphere.color
+    compute_result = multiplication_scalaire(D, closest_t)
+    P = addition_vecteurs(O, compute_result)
+    N = soustraction_vecteurs(P, closest_sphere.center)
+    N = multiplication_scalaire(N, 1 / taille_vecteur(N)) #On normalise ici le vecteur N
+    return multiplication_scalaire(closest_sphere.color, ComputeLighting(P, N, scene))
 
 def IntersectRaySphere(O, D, sphere):
     r = sphere.radius
@@ -62,6 +83,23 @@ def load_scene_from_file(scene, filename):
                     s = Sphere((cx, cy, cz), radius, (r, g, b))
                     scene.add_objet(s)
                     print(f"Sphère chargée: {s.center}")
+                elif parts[0] == 'light':
+                    # Format: light type intensity [x y z]
+                    type = parts[1]
+                    intensity = float(parts[2])
+                    if type == 'ambient':
+                        light = Light(type, intensity, None)
+                    elif type == 'point':
+                        x, y, z = float(parts[3]), float(parts[4]), float(parts[5])
+                        light = Light(type, intensity, (x, y, z))
+                    elif type == 'directional':
+                        dx, dy, dz = float(parts[3]), float(parts[4]), float(parts[5])
+                        light = Light(type, intensity, (dx, dy, dz))
+                    else:
+                        print(f"Type de lumière inconnu: {type}")
+                        continue
+                    scene.add_light(light)
+                    print(f"Lumière chargée: {type} avec intensité {intensity}")
     except FileNotFoundError:
         print("Erreur: Le fichier scene.txt est introuvable.")
 

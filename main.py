@@ -13,9 +13,7 @@ if __name__ == '__main__':
     camera = Camera(0,0,0)  
     viewport = Viewport(1,1,1)
     scene = Scene()
-    # Charger les sphères depuis un fichier texte (format attendu:)
-    # lignes de la forme: "sphere cx cy cz radius r g b"
-    # Exemple disponible dans scene.txt
+
     load_scene_from_file(scene, 'scene.txt')
     scene.set_camera(camera)
     scene.set_viewport(viewport)
@@ -36,8 +34,12 @@ if __name__ == '__main__':
     img = Image.new('RGB', (Cw, Ch))
     for y in range(Ch):
         for x in range(Cw):
-            img.putpixel((x, y), canvas.pixels[y][x])
-            
-    # Sauvegarde l'image sans ouvrir de viewer (évite blocage en environnement headless)
+            integer = (canvas.pixels[y][x])     # Ici on convertit chaque composante de la couleur en entier pour que ca passe au niveau de putpixel
+            r = int(integer[0])
+            g = int(integer[1])
+            b = int(integer[2])
+            integer = (r, g, b)
+            img.putpixel((x, y), integer)
+
     img.save('output.bmp')
 

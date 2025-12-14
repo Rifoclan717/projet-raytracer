@@ -3,6 +3,7 @@ class Scene:
         self.camera = None
         self.viewport = None
         self.objets = []
+        self.lights = []
 
     def set_camera(self, camera):
         self.camera = camera
@@ -12,3 +13,6 @@ class Scene:
 
     def add_objet(self, objet):
         self.objets.append(objet)
+    
+    def add_light(self, light):
+        self.lights.append(light)
