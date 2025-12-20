@@ -12,11 +12,9 @@ def ComputeLighting(P, N, scene, V, s):
         else:
             if light.type == 'point':
                 L = soustraction_vecteurs(light.position, P) #Vecteur allant du point P à la lumière
-                L = multiplication_scalaire(L, 1 / taille_vecteur(L)) #On normalise ici le vecteur L
                 t_max = 1
             else:
                 L = light.direction
-                L = multiplication_scalaire(L, 1 / taille_vecteur(L)) #On normalise ici le vecteur L
                 t_max = float('inf')
 
             # Shadow check
