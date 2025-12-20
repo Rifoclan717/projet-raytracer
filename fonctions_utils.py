@@ -13,10 +13,17 @@ def ComputeLighting(P, N, scene, V, s):
             if light.type == 'point':
                 L = soustraction_vecteurs(light.position, P) #Vecteur allant du point P à la lumière
                 L = multiplication_scalaire(L, 1 / taille_vecteur(L)) #On normalise ici le vecteur L
+                t_max = 1
             else:
                 L = light.direction
                 L = multiplication_scalaire(L, 1 / taille_vecteur(L)) #On normalise ici le vecteur L
+                t_max = float('inf')
 
+            # Shadow check
+            shadow_t ,shadow_sphere = ClosestIntersection(P, L, 0.001, t_max, scene) 
+            if shadow_sphere != None : # Si on a trouvé une ombre
+                continue
+        
             # Diffuse
             n_dot_l = produit_scalaire(N, L)
             if n_dot_l > 0:
@@ -34,31 +41,20 @@ def ComputeLighting(P, N, scene, V, s):
 
 # Tracer un rayon dans la scène
 def TraceRay(O, D, t_min, t_max, scene):
-    closest_t = float('inf')
-    closest_sphere = None
+    closest_t, closest_sphere = ClosestIntersection(O, D, t_min, t_max, scene) # Trouver la sphère la plus proche intersectée par le rayon
 
-    for sphere in scene.objets:
-        t1, t2 = IntersectRaySphere(O, D, sphere)
-        
-        if t_min < t1 < t_max and t1 < closest_t:
-            closest_t = t1
-            closest_sphere = sphere
-           
-        if t_min < t2 < t_max and t2 < closest_t:
-            closest_t = t2
-            closest_sphere = sphere
-
-    if closest_sphere == None:
+    if closest_sphere == None: # Si aucune sphère n'est intersectée, on retourne la couleur de fond (blanc ici)
         return (255, 255, 255)
     
-    compute_result = multiplication_scalaire(D, closest_t)
+    compute_result = multiplication_scalaire(D, closest_t) # On calcule D * t
 
-    P = addition_vecteurs(O, compute_result)
-    N = soustraction_vecteurs(P, closest_sphere.center)
+    P = addition_vecteurs(O, compute_result) # On calcule le point d'intersection P = O + D * t
+    N = soustraction_vecteurs(P, closest_sphere.center) # On calcule le vecteur normal N au point P
     N = multiplication_scalaire(N, 1 / taille_vecteur(N)) #On normalise ici le vecteur N
 
-    return multiplication_scalaire(closest_sphere.color, ComputeLighting(P, N, scene, multiplication_scalaire(D,-1), closest_sphere.specular))
+    return multiplication_scalaire(closest_sphere.color, ComputeLighting(P, N, scene, multiplication_scalaire(D,-1), closest_sphere.specular)) # On calcule la couleur au point d'intersection en fonction de l'éclairage
 
+# Calculer l'intersection entre un rayon et une sphère
 def IntersectRaySphere(O, D, sphere):
     r = sphere.radius
     CO = soustraction_vecteurs(O, sphere.center)
@@ -76,6 +72,25 @@ def IntersectRaySphere(O, D, sphere):
     t2 = (-b - math.sqrt(discriminant)) / (2*a)
     return t1, t2
 
+# Trouver l'intersection la plus proche entre un rayon et les sphères de la scène
+def ClosestIntersection(O, D ,t_min, t_max, scene):
+    closest_t = float('inf')
+    closest_sphere = None
+
+    for sphere in scene.objets:
+        t1, t2 = IntersectRaySphere(O, D, sphere)
+        
+        if t_min < t1 < t_max and t1 < closest_t:
+            closest_t = t1
+            closest_sphere = sphere
+           
+        if t_min < t2 < t_max and t2 < closest_t:
+            closest_t = t2
+            closest_sphere = sphere
+
+    return closest_t, closest_sphere
+
+# Convertir les coordonnées du canevas aux coordonnées du viewport
 def CanvasToViewport(viewport,canvas,x,y):
     return (x * viewport.width / canvas.width,y * viewport.height / canvas.height,viewport.dist)
 
@@ -124,6 +139,6 @@ def load_scene_from_file(scene, filename):
                     scene.add_light(light) #Light ajoutée à la scène
                     print(f"Lumière chargée: {type} avec intensité {intensity}")
 
-    except FileNotFoundError:
+    except FileNotFoundError: # Si le fichier n'est pas trouvé
         print("Erreur: Le fichier scene.txt est introuvable.")
 
