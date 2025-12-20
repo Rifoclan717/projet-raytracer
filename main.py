@@ -26,7 +26,7 @@ if __name__ == '__main__':
     for x in range(-Cw // 2, Cw // 2):
         for y in range(-Ch // 2, Ch // 2):
             D = CanvasToViewport(viewport, canvas, x, y)
-            color = TraceRay(O, D, 1, float('inf'), scene)
+            color = TraceRay(O, D, 1, float('inf'), scene, 3)
             canvas.PutPixel(x, y, color)
 
 

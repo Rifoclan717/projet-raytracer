@@ -6,6 +6,7 @@ import math
 # Calculer l'éclairage en un point donné
 def ComputeLighting(P, N, scene, V, s):
     intensity = 0.0
+
     for light in scene.lights:
         if light.type == 'ambient':
             intensity += light.intensity # Lumière ambiante
@@ -38,11 +39,11 @@ def ComputeLighting(P, N, scene, V, s):
     return intensity # On retourne l'intensité totale de la lumière
 
 # Tracer un rayon dans la scène
-def TraceRay(O, D, t_min, t_max, scene):
+def TraceRay(O, D, t_min, t_max, scene, recursion_depth):
     closest_t, closest_sphere = ClosestIntersection(O, D, t_min, t_max, scene) # Trouver la sphère la plus proche intersectée par le rayon
 
-    if closest_sphere == None: # Si aucune sphère n'est intersectée, on retourne la couleur de fond (blanc ici)
-        return (255, 255, 255)
+    if closest_sphere == None: # Si aucune sphère n'est intersectée, on retourne la couleur de fond (noir ici)
+        return (0, 0, 0)
     
     compute_result = multiplication_scalaire(D, closest_t) # On calcule D * t
 
@@ -50,7 +51,20 @@ def TraceRay(O, D, t_min, t_max, scene):
     N = soustraction_vecteurs(P, closest_sphere.center) # On calcule le vecteur normal N au point P
     N = multiplication_scalaire(N, 1 / taille_vecteur(N)) #On normalise ici le vecteur N
 
-    return multiplication_scalaire(closest_sphere.color, ComputeLighting(P, N, scene, multiplication_scalaire(D,-1), closest_sphere.specular)) # On calcule la couleur au point d'intersection en fonction de l'éclairage
+    local_color = multiplication_scalaire(closest_sphere.color, ComputeLighting(P, N, scene, multiplication_scalaire(D,-1), closest_sphere.specular)) # On calcule la couleur au point d'intersection en fonction de l'éclairage
+
+    # If we hit the recursion limit or the object is not reflective, we're done
+    r = closest_sphere.reflective
+    if recursion_depth <= 0 or r <= 0 :
+        return local_color
+    
+    #Compute the reflected color
+    R = ReflectRay(multiplication_scalaire(D, -1), N)
+    reflected_color = TraceRay(P, R, 0.001, float('inf'), scene, recursion_depth - 1) 
+
+    return addition_vecteurs(multiplication_scalaire(local_color, (1-r)), multiplication_scalaire(reflected_color, r)) # On combine les couleurs locale et réfléchie en fonction de la réflectivité
+    
+
 
 # Calculer l'intersection entre un rayon et une sphère
 def IntersectRaySphere(O, D, sphere):
@@ -88,6 +102,11 @@ def ClosestIntersection(O, D ,t_min, t_max, scene):
 
     return closest_t, closest_sphere
 
+# Calculer le rayon réfléchi
+def ReflectRay(R, N) :
+    n_dot_r = produit_scalaire(N, R) # On calcule (N . R)
+    return soustraction_vecteurs (multiplication_scalaire(N, 2 * n_dot_r), R) # On calcule 2 * N * (N . R) - R
+
 # Convertir les coordonnées du canevas aux coordonnées du viewport
 def CanvasToViewport(viewport,canvas,x,y):
     return (x * viewport.width / canvas.width,y * viewport.height / canvas.height,viewport.dist)
@@ -102,15 +121,16 @@ def load_scene_from_file(scene, filename):
                 if not parts: continue # Sauter les lignes vides
                 
                 if parts[0] == 'sphere':
-                    # Format: sphere x y z radius r g b specular
+                    # Format: sphere x y z radius r g b specular reflective
                     # On convertit les textes en float/int
                     cx, cy, cz = float(parts[1]), float(parts[2]), float(parts[3])
                     radius = float(parts[4])
                     r, g, b = int(parts[5]), int(parts[6]), int(parts[7])
                     specular = int(parts[8])
+                    reflective = float(parts[9])
    
                     # Création et ajout
-                    sphere = Sphere((cx, cy, cz), radius, (r, g, b), specular)
+                    sphere = Sphere((cx, cy, cz), radius, (r, g, b), specular, reflective)
                     scene.add_objet(sphere) #Sphere ajoutée à la scène
                     print(f"Sphère chargée: {sphere.center}")
 
