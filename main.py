@@ -1,5 +1,5 @@
 import math
-from vec3 import soustraction_vecteurs, produit_scalaire, taille_vecteur, multiplier_matrice_vecteur
+from vec3 import  multiplier_matrice_vecteur
 from Scene import Scene         
 from Camera import Camera       
 from Canvas import Canvas       
@@ -11,7 +11,7 @@ from fonctions_utils import load_scene_from_file, TraceRay, CanvasToViewport
 if __name__ == '__main__':
     
     # Camera(x, y, z, rot_x, rot_y, rot_z) - rotations en degrés
-    camera = Camera(0, 0, 0, 0, 0, 0)  # Position (0,0,0), aucune rotation  # Position (3,0,1), rotation -30° sur Y
+    camera = Camera(0, 0, -3, 0, 0, 0)  # Position (0,0,0), aucune rotation  # Position (3,0,1), rotation -30° sur Y
     viewport = Viewport(1,1,1)
     scene = Scene()
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
         for y in range(-Ch // 2, Ch // 2):
             D = CanvasToViewport(viewport, canvas, x, y)
             D = multiplier_matrice_vecteur(camera.rotation, D)  # Applique la rotation
-            color = TraceRay(O, D, 1, float('inf'), scene, 3)
+            color = TraceRay(O, D, 1, float('inf'), scene, 5)
             canvas.PutPixel(x, y, color)
 
 
