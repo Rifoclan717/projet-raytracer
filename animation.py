@@ -53,6 +53,7 @@ if __name__ == '__main__':
         angle = (frame / num_frames) * 360  # Angle en degrés (0 à 360)
         
         # Position de la caméra sur un cercle autour du centre (0, 0, 3)
+        
         cam_x = radius * math.sin(math.radians(angle))
         cam_z = 3 + radius * math.cos(math.radians(angle))
         
