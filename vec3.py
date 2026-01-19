@@ -14,39 +14,3 @@ def taille_vecteur(v):
 
 def multiplication_scalaire(v, scalar):
     return (v[0] * scalar, v[1] * scalar, v[2] * scalar)
-
-
-def rotation_x(angle_deg):
-    a = math.radians(angle_deg)
-    c, s = math.cos(a), math.sin(a)
-    return [[1, 0, 0], [0, c, -s], [0, s, c]]
-
-def rotation_y(angle_deg):
-    a = math.radians(angle_deg)
-    c, s = math.cos(a), math.sin(a)
-    return [[c, 0, s], [0, 1, 0], [-s, 0, c]]
-
-def rotation_z(angle_deg):
-    a = math.radians(angle_deg)
-    c, s = math.cos(a), math.sin(a)
-    return [[c, -s, 0], [s, c, 0], [0, 0, 1]]
-
-def multiplier_matrice_vecteur(m, v):
-    return (
-        m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2],
-        m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2],
-        m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2]
-    )
-
-def multiplier_matrices(m1, m2):
-    r = [[0,0,0], [0,0,0], [0,0,0]]
-    for i in range(3):
-        for j in range(3):
-            for k in range(3):
-                r[i][j] += m1[i][k] * m2[k][j]
-    return r
-#toutes les fonctions servent juste pour ca en fait, on fait une transofrmation en multipliant les matrices de rotation entre elles 
-#comme ca on a une matrice de rotation finale qu'on applique au vecteur direction du rayon
-
-def creer_rotation(rx, ry, rz):
-    return multiplier_matrices(rotation_x(rx), multiplier_matrices(rotation_y(ry), rotation_z(rz)))
