@@ -3,7 +3,7 @@ class Camera:
         self.x = x      
         self.y = y
         self.z = z
-    
+
     @property
     def position(self):
         return (self.x, self.y, self.z)

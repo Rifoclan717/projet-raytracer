@@ -8,38 +8,45 @@ from PIL import Image
 from fonctions_utils import load_scene_from_file, TraceRay, CanvasToViewport
 from Sphere import Sphere
 
+# Fonction pour rendre une frame et retourner l'image PIL
 def render_frame(scene, camera, viewport, Cw, Ch):
-    """Rend une frame et retourne l'image PIL"""
+
+    # Configuration de la scène
     canvas = Canvas(Cw, Ch)
     O = camera.position
     
-    for x in range(-Cw // 2, Cw // 2):
+    # Parcours de chaque pixel du canvas
+    for x in range(-Cw // 2, Cw // 2): 
         for y in range(-Ch // 2, Ch // 2):
-            D = CanvasToViewport(viewport, canvas, x, y)
-            color = TraceRay(O, D, 1, float('inf'), scene, 3)
-            canvas.PutPixel(x, y, color)
+            D = CanvasToViewport(viewport, canvas, x, y) # Direction du rayon a partir du pixel (x, y)
+            color = TraceRay(O, D, 1, float('inf'), scene, 3) # Tracer le rayon et obtenir la couleur
+            canvas.PutPixel(x, y, color) # Mettre a jour la couleur du pixel dans le canvas
     
-    img = Image.new('RGB', (Cw, Ch))
+    img = Image.new('RGB', (Cw, Ch)) # Creation d'une nouvelle image RGB avec les dimensions du canvas
+
+    # Copier les pixels du canvas vers l'image
     for y in range(Ch):
         for x in range(Cw):
-            pixel = canvas.pixels[y][x]
-            img.putpixel((x, y), (int(pixel[0]), int(pixel[1]), int(pixel[2])))
+            pixel = canvas.pixels[y][x] # Récupérer la couleur du pixel sous forme de tuple (R, G, B)
+            img.putpixel((x, y), (int(pixel[0]), int(pixel[1]), int(pixel[2]))) # Mettre a jour le pixel de l'image
+    # Retourner l'image PIL
     return img
 
 if __name__ == '__main__':
     
-    viewport = Viewport(1, 1, 1)
+    viewport = Viewport(1, 1, 1) # Viewport(width, height, distance)
 
-    Cw = 200  # Résolution réduite pour aller plus vite
+    # Résolution réduite pour aller plus vite
+    Cw = 200  
     Ch = 200
 
     # Créer le dossier pour les frames
     os.makedirs('frames', exist_ok=True)
 
-    # === ANIMATION : sphères qui bougent ===
+    # Nombre de frames pour l'animation
     num_frames = 36
     
-    # Caméra fixe
+    # Position de la caméra
     camera = Camera(0, 0.5, -2)
 
     # Positions initiales des sphères
@@ -47,17 +54,18 @@ if __name__ == '__main__':
     # Sphère gauche : x=-3, y=0.5, z=4 (va vers le centre puis revient)
     # Sphère droite : x=3, y=0.5, z=4 (va vers le centre puis revient)
     
-    center_sphere_base_y = -1
+    center_sphere_base_y = -1 # Position de base en y de la sphère centrale
     center_sphere_amplitude = 1.5  # Amplitude du mouvement vertical
     
-    left_sphere_base_x = -3
-    right_sphere_base_x = 3
+    left_sphere_base_x = -3 # Position de base en x de la sphère gauche
+    right_sphere_base_x = 3 # Position de base en x de la sphère droite
     side_sphere_amplitude = 2  # Amplitude du mouvement horizontal
 
     print(f"Rendu de {num_frames} frames (résolution {Cw}x{Ch})...")
 
-    images = []  # Pour créer le GIF
+    images = []  # Liste pour stocker les images des frames
 
+    # Boucle sur chaque frame
     for frame in range(num_frames):
         # Recharger la scène à chaque frame pour réinitialiser les positions
         scene = Scene()
@@ -82,6 +90,7 @@ if __name__ == '__main__':
         # La sphère 1 est la sphère gauche (verte, position -3, 0.5, 4)
         # La sphère 2 est la sphère droite (bleue, position 3, 0.5, 4)
         
+        # Mettre à jour les positions des sphères
         for obj in scene.objets:
             if isinstance(obj, Sphere):
                 # Sphère centrale (rouge à x=0, z=3)
@@ -94,12 +103,13 @@ if __name__ == '__main__':
                 elif obj.center[0] > 2 and obj.radius == 1:
                     obj.center = (new_right_x, obj.center[1], obj.center[2])
         
-        img = render_frame(scene, camera, viewport, Cw, Ch)
-        images.append(img)
+        img = render_frame(scene, camera, viewport, Cw, Ch) # Rendre la frame
+        images.append(img) # Ajouter l'image à la liste
         
-        filename = f'frames/frame_{frame:03d}.png'
-        img.save(filename)
-        print(f"Frame {frame + 1}/{num_frames} sauvegardée: {filename}")
+        filename = f'frames/frame_{frame:03d}.png' # Nom du fichier pour la frame
+        img.save(filename) # Sauvegarder l'image de la frame
+
+        print(f"Frame {frame + 1}/{num_frames} sauvegardée: {filename}") # Indication de progression
 
     # Créer le GIF automatiquement
     print("\nCréation du GIF...")
