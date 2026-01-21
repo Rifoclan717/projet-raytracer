@@ -28,11 +28,11 @@ if __name__ == '__main__':
     viewport = Viewport(1, 1, 1)
     camera = Camera(0, 0.5, -2)
     Cw, Ch = 200, 200
-    num_frames = 20
+    num_frames = 40
     os.makedirs('frames', exist_ok=True)
 
     images = []
-    print(f"Rendu de {num_frames} frames...")
+    print(f"Rendu de {num_frames} frames pour l'animation")
 
     # Animation simple : la sphère rouge monte, les sphères latérales se rapprochent
     for frame in range(num_frames):
@@ -61,4 +61,4 @@ if __name__ == '__main__':
     images = images + images[::-1] #pour les imags en arrière
     # Export GIF
     images[0].save('animation.gif', save_all=True, append_images=images[1:], duration=100, loop=0)
-    print("Terminé ! → animation.gif")
+    print("fin de la boucle'")
