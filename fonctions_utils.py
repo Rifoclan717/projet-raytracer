@@ -164,7 +164,7 @@ def load_scene_from_file(scene, filename):
                     Vx, Vy, Vz = float(parts[7]), float(parts[8]), float(parts[9])
                     r, g, b = int(parts[10]), int(parts[11]), int(parts[12])
                     specular = int(parts[13])
-                    reflective = int(parts[14])
+                    reflective = float(parts[14])
                     p = Parallelogram((Ax, Ay, Az), Ux, Uy, Uz, Vx, Vy, Vz, (r,g,b), specular, reflective)
                     scene.add_mur(p)
                     print("Parallelogramme chargé")
