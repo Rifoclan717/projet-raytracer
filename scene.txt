@@ -34,6 +34,6 @@ sphere 0 -5001 0 5000 255 255 0 1000 0.5
 # light directional intensity x y z
 light ambient 0.2
 light point 0.8 2 1 0
-light directional 0.2 1 4 4
+light directional 0.4 1 4 4
 light point 2.5 0 1.9 4
 light directional 0.5 0 0 -1
