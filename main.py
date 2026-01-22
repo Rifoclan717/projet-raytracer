@@ -11,7 +11,7 @@ if __name__ == '__main__':
     camera = Camera(0, 0, -3)
     viewport = Viewport(1, 1, 1)
     scene = Scene()
-    load_scene_from_file(scene, 'scene2.txt') # Adapter le nom du fichier si nécessaire
+    load_scene_from_file(scene, 'scene.txt') # Adapter le nom du fichier si nécessaire
     scene.set_camera(camera)
     scene.set_viewport(viewport)
 

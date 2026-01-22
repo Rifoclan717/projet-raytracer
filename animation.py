@@ -28,7 +28,7 @@ if __name__ == '__main__':
     viewport = Viewport(1, 1, 1)
     camera = Camera(0, 0.5, -2)
     Cw, Ch = 200, 200
-    num_frames = 40
+    num_frames = 20
     os.makedirs('frames', exist_ok=True)
 
     images = []
