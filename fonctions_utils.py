@@ -4,8 +4,10 @@ from parallelogramme import Parallelogram
 from vec3 import addition_vecteurs, multiplication_scalaire, soustraction_vecteurs, produit_scalaire, taille_vecteur
 import math
 
-# Retourne la distance t si le rayon (O,D) intersecte le parallélogramme, sinon inf
+# (AIDE A IA)
+# This fonction computes the intersection of a ray with a parallelogram (wall)
 def IntersectRayParallelogram(O, D, wall):
+    
     N = wall.N
     denom = produit_scalaire(N, D)
 
@@ -28,7 +30,7 @@ def IntersectRayParallelogram(O, D, wall):
 
     return float('inf')
 
-# Calcule l'intensité lumineuse totale au point P (ambiante + diffuse + spéculaire)
+# Compute lighting to get the intensity at point P
 def ComputeLighting(P, N, scene, V, s):
     intensity = 0.0
 
@@ -60,7 +62,7 @@ def ComputeLighting(P, N, scene, V, s):
 
     return intensity
 
-# Trace un rayon et retourne la couleur du pixel (avec réflexions récursives)
+# Trace a ray from origin O in direction D within the scene to get the color
 def TraceRay(O, D, t_min, t_max, scene, depth):
     t, obj, obj_type = ClosestIntersection(O, D, t_min, t_max, scene)
 
@@ -90,7 +92,7 @@ def TraceRay(O, D, t_min, t_max, scene, depth):
         multiplication_scalaire(reflected, reflective)
     )
 
-# Retourne les deux distances t1,t2 d'intersection entre le rayon (O,D) et la sphère
+# This fonction computes the intersection of a ray with a sphere
 def IntersectRaySphere(O, D, sphere):
     r = sphere.radius
     CO = soustraction_vecteurs(O, sphere.center)
@@ -108,7 +110,7 @@ def IntersectRaySphere(O, D, sphere):
     t2 = (-b - math.sqrt(discriminant)) / (2*a)
     return t1, t2
 
-# Trouve l'objet le plus proche intersecté par le rayon (O,D) dans l'intervalle [t_min, t_max]
+# Find the closest intersection of a ray with objects in the scene
 def ClosestIntersection(O, D, t_min, t_max, scene):
     closest_t = float('inf')
     closest_obj = None
@@ -131,16 +133,16 @@ def ClosestIntersection(O, D, t_min, t_max, scene):
 
     return closest_t, closest_obj, obj_type
 
-# Calcule le vecteur réfléchi de R par rapport à la normale N
+# Compute the reflection of ray R around normal N
 def ReflectRay(R, N):
     n_dot_r = produit_scalaire(N, R)
     return soustraction_vecteurs(multiplication_scalaire(N, 2 * n_dot_r), R)
 
-# Convertit les coordonnées canvas (x,y) en direction 3D vers le viewport
+# Convert canvas coordinates to viewport coordinates
 def CanvasToViewport(viewport, canvas, x, y):
     return (x * viewport.width / canvas.width, y * viewport.height / canvas.height, viewport.dist)
 
-# Charge les objets et lumières d'une scène depuis un fichier texte
+# Load scene from a file and populate the scene object
 def load_scene_from_file(scene, filename):
     try:
         with open(filename, 'r') as f:
@@ -156,7 +158,6 @@ def load_scene_from_file(scene, filename):
                     reflective = float(parts[9])
                     sphere = Sphere((cx, cy, cz), radius, (r, g, b), specular, reflective)
                     scene.add_objet(sphere)
-                    print(f"Sphère chargée: {sphere.center}")
 
                 elif parts[0] == 'parallelogram':
                     Ax, Ay, Az = float(parts[1]), float(parts[2]), float(parts[3])
@@ -167,7 +168,6 @@ def load_scene_from_file(scene, filename):
                     reflective = float(parts[14])
                     p = Parallelogram((Ax, Ay, Az), Ux, Uy, Uz, Vx, Vy, Vz, (r,g,b), specular, reflective)
                     scene.add_mur(p)
-                    print("Parallelogramme chargé")
 
                 elif parts[0] == 'light':
                     type = parts[1]
@@ -182,11 +182,9 @@ def load_scene_from_file(scene, filename):
                         dx, dy, dz = float(parts[3]), float(parts[4]), float(parts[5])
                         light = Light(type, intensity, (dx, dy, dz))
                     else:
-                        print(f"Type de lumière inconnu: {type}")
                         continue
 
                     scene.add_light(light)
-                    print(f"Lumière chargée: {type} avec intensité {intensity}")
 
     except FileNotFoundError:
         print("Erreur: Le fichier scene.txt est introuvable.")

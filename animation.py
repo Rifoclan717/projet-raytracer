@@ -6,7 +6,7 @@ from Viewport import Viewport
 from PIL import Image
 from fonctions_utils import load_scene_from_file, TraceRay, CanvasToViewport
 
-# Rend une frame et retourne l'image PIL
+# Render a single frame of the scene from the camera's perspective
 def render_frame(scene, camera, viewport, Cw, Ch):
     canvas = Canvas(Cw, Ch)
     O = camera.position
@@ -34,22 +34,19 @@ if __name__ == '__main__':
     images = []
     print(f"Rendu de {num_frames} frames pour l'animation")
 
-    # Animation simple : la sphère rouge monte, les sphères latérales se rapprochent
+    # Generate frames with animated spheres
     for frame in range(num_frames):
         scene = Scene()
         load_scene_from_file(scene, 'scene.txt')
         scene.set_viewport(viewport)
         scene.set_camera(camera)
 
-        # Sphère rouge (centre) → monte
         sphere0 = scene.objets[0]
         sphere0.center = (sphere0.center[0], sphere0.center[1] + frame * 0.1, sphere0.center[2])
 
-        # Sphère gauche → se rapproche du centre
         sphere1 = scene.objets[1]
         sphere1.center = (sphere1.center[0] + frame * 0.1, sphere1.center[1], sphere1.center[2])
 
-        # Sphère droite → se rapproche du centre
         sphere2 = scene.objets[2]
         sphere2.center = (sphere2.center[0] - frame * 0.1, sphere2.center[1], sphere2.center[2])
 
@@ -58,7 +55,7 @@ if __name__ == '__main__':
         img.save(f'frames/frame_{frame:03d}.png')
         print(f"Frame {frame + 1}/{num_frames}")
 
-    images = images + images[::-1] #pour les imags en arrière
-    # Export GIF
+    images = images + images[::-1]
+
     images[0].save('animation.gif', save_all=True, append_images=images[1:], duration=100, loop=0)
     print("fin de la boucle'")

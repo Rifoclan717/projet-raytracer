@@ -6,12 +6,11 @@ from PIL import Image
 from fonctions_utils import load_scene_from_file, TraceRay, CanvasToViewport
 
 if __name__ == '__main__':
-
-    # Initialisation de la scène
+    # Set up camera, viewport, and scene
     camera = Camera(0, 0, -3)
     viewport = Viewport(1, 1, 1)
     scene = Scene()
-    load_scene_from_file(scene, 'scene.txt') # Adapter le nom du fichier si nécessaire
+    load_scene_from_file(scene, 'scene2.txt') # You can change the scene file here
     scene.set_camera(camera)
     scene.set_viewport(viewport)
 
@@ -19,15 +18,16 @@ if __name__ == '__main__':
     Ch = 500
     canvas = Canvas(Cw, Ch)
 
-    # Raytracing : calcul de la couleur de chaque pixel
     O = camera.position
+
+    # Trace rays for each pixel
     for x in range(-Cw // 2, Cw // 2):
         for y in range(-Ch // 2, Ch // 2):
             D = CanvasToViewport(viewport, canvas, x, y)
             color = TraceRay(O, D, 1, float('inf'), scene, 5)
             canvas.PutPixel(x, y, color)
 
-    # Export de l'image en fichier BMP
+    # Create and save the image
     img = Image.new('RGB', (Cw, Ch))
     for y in range(Ch):
         for x in range(Cw):
